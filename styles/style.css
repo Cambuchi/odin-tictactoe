@@ -1,0 +1,125 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Oswald:wght@300;400&display=swap');
+* {-webkit-font-smoothing: antialiased;}
+
+html {
+    height: 100vh;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    background-image: linear-gradient(to bottom right, rgb(142, 213, 255), rgb(239, 244, 255));
+}
+
+#header, #header h1 {
+    text-align: center;
+    font-family: 'Dancing Script', cursive;
+    font-size: 8rem;
+    font-weight: 700;
+    margin: 0px;
+}
+
+#game-container {
+    display: flex;
+    margin: 20px 50px 50px 50px;
+    width: 25%;
+    aspect-ratio: 1/1;
+    align-items: center;
+    justify-content: center;
+}
+
+@media only screen and (max-width: 768px){
+    #game-container {
+        width: 75%;
+    }
+}
+
+@media only screen and (max-width: 1100px){
+    #game-container {
+        width: 66%;
+    }
+}
+
+#board-container {
+    background: rgb(50, 50, 50);
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: space-evenly;
+    align-content: space-evenly;
+    border-radius: 10px;
+    padding: 1px;
+}
+
+.board-tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(210, 210, 210);
+    color: rgb(37, 37, 37);
+    width: calc(90%/3);
+    height: calc(90%/3);
+    border: 1px solid black;
+    border-radius: 10px;
+    font-size: 8vw;
+    -webkit-user-select: none; /* Safari */        
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard */
+}
+
+.click:hover {
+    background:rgb(130, 130, 130)
+}
+
+.no-click-x {
+    background: #FF96BB;
+}
+
+.no-click-o {
+    background: #96FFDA;
+}
+
+.hidden {
+    visibility: hidden;
+}
+
+#reset-container {
+    display: flex;
+    align-items: center;
+    margin: 25px;
+}
+
+#reset-button {
+    border: 3px solid rgb(20, 20, 20);
+    border-radius: 10px;
+    padding: 5px 40px;
+    height: 100%;
+    min-height: 80px;
+    min-width: 200px;
+    font-size: 2rem;
+    text-align: center;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 300;
+}
+
+#reset-button:hover {
+    background-color: rgb(165, 165, 165);
+}
+
+#reset-button:active {
+    background-color: rgb(128, 128, 128);
+}
+
+#message {
+    text-align: center;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 300;
+    font-size: 1.75rem;
+}
