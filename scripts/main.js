@@ -19,6 +19,8 @@ let game = (() => {
         for (let i = 0; i < board.length; i++) {
             tiles[i].textContent = board[i];
         }
+        events.emit('boardChanged', board);
+        events.emit('playerChanged', turnCounter%2);
     }
 
     //when user clicks an empty tile, updates board, click states, rerenders,
@@ -157,11 +159,53 @@ let game = (() => {
     }
 })();
 
+let ai = (() => {
+
+})();
+
 //IIFE to add event listener to reset button
 (function() {
     let resetButton = document.getElementById('reset-button');
     resetButton.addEventListener('click', game.reset);
 })();
+
+//IIFE for pubsub functionality between game and ai modules without exposing variables
+let events = (function() {
+    let events = {};
+
+    function on(eventName, fn) {
+        events[eventName] = events[eventName] || [];
+        events[eventName].push(fn);
+    }
+
+    function off(eventName, fn) {
+        if (events[eventName]) {
+            for (let i = 0; i < events[eventName].length; i++) {
+                if( events[eventName][i] === fn ) {
+                    events[eventName].splice(i, 1);
+                    break;
+                }
+            }
+        }
+    }
+
+    function emit(eventName, data) {
+        if (events[eventName]) {
+            events[eventName].forEach(function(fn) {
+                fn(data);
+            });
+        }
+    }
+
+    return {
+        on: on,
+        off: off,
+        emit: emit
+    };
+
+})();
+
+
 
 //adds event listeners to the game board
 game.addClickAreas();
