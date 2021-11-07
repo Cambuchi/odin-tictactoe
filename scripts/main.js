@@ -39,7 +39,7 @@ let game = (() => {
         if (gameState != 'continue') {
             gameEnd(gameState);
         }
-    }
+    } 
 
     //removes ability to click and click styling from board elements that are filled,
     //also adds class to style X and O filled elements
@@ -96,25 +96,11 @@ let game = (() => {
     //checks if the game has a winner or is in a tie state
     function gameStateCheck() {
         //populates magic board with magic square numbers according to x or o
-        let magicBoard = ['','','','','','','','',''];
-        for (let i = 0; i < board.length; i++) {
-            if (board[i] === 'X') {
-                magicBoard[i] = xMagicSquare[i];
-            } else if (board[i] === 'O') {
-                magicBoard[i] = oMagicSquare[i];
-            }
-        }
-        //computes sums for all of the win conditions and creates an array of the sums
-        let top = magicBoard[0] + magicBoard[1] + magicBoard[2];
-        let mid = magicBoard[3] + magicBoard[4] + magicBoard[5];
-        let bot = magicBoard[6] + magicBoard[7] + magicBoard[8];
-        let left = magicBoard[0] + magicBoard[3] + magicBoard[6];
-        let center = magicBoard[1] + magicBoard[4] + magicBoard[7];
-        let right = magicBoard[2] + magicBoard[5] + magicBoard[8];
-        let diag1 = magicBoard[0] + magicBoard[4] + magicBoard[8];
-        let diag2 = magicBoard[6] + magicBoard[4] + magicBoard[2];
+        let magicBoard = createMagicBoard(board)
 
-        let sums = [top, mid, bot, left, center, right, diag1, diag2];
+        //computes sums for all of the win conditions and creates an array of the sums
+        let sums = magicSums(magicBoard)
+
         //if the sums includes 15: x wins, 30: o wins. If board has no winner and there
         //is no more blank spaces, return draw state
         if (sums.includes(15)) {
@@ -126,6 +112,35 @@ let game = (() => {
         } else {
             return 'continue';
         }
+    }
+
+    //populates magic board with magic square numbers according to x or o
+    function createMagicBoard(board) {
+        let magicBoard = ['','','','','','','','',''];
+        for (let i = 0; i < board.length; i++) {
+            if (board[i] === 'X') {
+                magicBoard[i] = xMagicSquare[i];
+            } else if (board[i] === 'O') {
+                magicBoard[i] = oMagicSquare[i];
+            }
+        }
+        return magicBoard;
+    }
+
+    //computes sums for all of the win conditions and creates an array of the sums
+    function magicSums(magicBoard) {
+        let top = magicBoard[0] + magicBoard[1] + magicBoard[2];
+        let mid = magicBoard[3] + magicBoard[4] + magicBoard[5];
+        let bot = magicBoard[6] + magicBoard[7] + magicBoard[8];
+        let left = magicBoard[0] + magicBoard[3] + magicBoard[6];
+        let center = magicBoard[1] + magicBoard[4] + magicBoard[7];
+        let right = magicBoard[2] + magicBoard[5] + magicBoard[8];
+        let diag1 = magicBoard[0] + magicBoard[4] + magicBoard[8];
+        let diag2 = magicBoard[6] + magicBoard[4] + magicBoard[2];
+
+        let sums = [top, mid, bot, left, center, right, diag1, diag2];
+
+        return sums;
     }
 
     //when game ends, reveals game end message and reset button according to game state passed in
@@ -156,11 +171,71 @@ let game = (() => {
     return {
         addClickAreas,
         reset,
+        xMagicSquare,
+        oMagicSquare,
+        magicSums,
+        createMagicBoard,
+        board,
     }
 })();
 
 let ai = (() => {
 
+    function terminalCheck(board) {
+        let magicBoard = game.createMagicBoard(board);
+        let sums = game.magicSums(magicBoard);
+        if (sums.includes(30)) {
+            return 10;
+        } else if (sums.includes(15)) {
+            return -10;
+        } else if (!board.includes('')) {
+            return 0;
+        }
+        return false;
+    }
+
+    function scoreMoves(board) {
+        const countOccurrences = (arr, val) => arr.reduce((a, v) => (v === val ? a + 1 : a), 0);
+        let temp = [...board]
+        let depth = 9 - countOccurrences(board, '')
+
+        let terminalScore = terminalCheck(board);
+        if (terminalScore !== false) {
+            return terminalScore - depth;
+        };
+
+        let moves = [];
+
+        for (let i = 0; i < temp.length; i++) {
+            console.log(`i: ${i} , depth: ${depth} , temp: ${temp}`)
+            if (temp[i] === '') {
+                let move = {};
+                move.index = i;
+                temp[i] = 'O';
+                let result = scoreMoves(temp);
+                console.log(`i: ${i} , result: ${result}`);
+                move.score = result;
+                moves.push(move);
+                temp[i] = '';
+            } 
+        }
+
+        let bestMove;
+        let bestScore = -10000;
+        for (let i=0; i<moves.length; i++) {
+          if (moves[i].score > bestScore) {
+            bestScore = moves[i].score;
+            bestMove = i;
+          }
+        }
+
+        return moves[bestMove];
+    }
+
+    return {
+        terminalCheck,
+        scoreMoves,
+    }
 })();
 
 //IIFE to add event listener to reset button
