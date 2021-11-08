@@ -19,8 +19,6 @@ let game = (() => {
         for (let i = 0; i < board.length; i++) {
             tiles[i].textContent = board[i];
         }
-        events.emit('boardChanged', board);
-        events.emit('playerChanged', turnCounter%2);
     }
 
     //when user clicks an empty tile, updates board, click states, rerenders,
@@ -166,121 +164,20 @@ let game = (() => {
         addClickClass();
         addClickAreas();
         render();
-        }
+    }
 
     return {
         addClickAreas,
         reset,
-        xMagicSquare,
-        oMagicSquare,
-        magicSums,
-        createMagicBoard,
-        board,
     }
 })();
 
-let ai = (() => {
-
-    function terminalCheck(board) {
-        let magicBoard = game.createMagicBoard(board);
-        let sums = game.magicSums(magicBoard);
-        if (sums.includes(30)) {
-            return 10;
-        } else if (sums.includes(15)) {
-            return -10;
-        } else if (!board.includes('')) {
-            return 0;
-        }
-        return false;
-    }
-
-    function scoreMoves(board) {
-        const countOccurrences = (arr, val) => arr.reduce((a, v) => (v === val ? a + 1 : a), 0);
-        let temp = [...board]
-        let depth = 9 - countOccurrences(board, '')
-
-        let terminalScore = terminalCheck(board);
-        if (terminalScore !== false) {
-            return terminalScore - depth;
-        };
-
-        let moves = [];
-
-        for (let i = 0; i < temp.length; i++) {
-            console.log(`i: ${i} , depth: ${depth} , temp: ${temp}`)
-            if (temp[i] === '') {
-                let move = {};
-                move.index = i;
-                temp[i] = 'O';
-                let result = scoreMoves(temp);
-                console.log(`i: ${i} , result: ${result}`);
-                move.score = result;
-                moves.push(move);
-                temp[i] = '';
-            } 
-        }
-
-        let bestMove;
-        let bestScore = -10000;
-        for (let i=0; i<moves.length; i++) {
-          if (moves[i].score > bestScore) {
-            bestScore = moves[i].score;
-            bestMove = i;
-          }
-        }
-
-        return moves[bestMove];
-    }
-
-    return {
-        terminalCheck,
-        scoreMoves,
-    }
-})();
-
-//IIFE to add event listener to reset button
+//IIFE to add event listener to reset button and start initial game
 (function() {
     let resetButton = document.getElementById('reset-button');
     resetButton.addEventListener('click', game.reset);
+
+    //adds event listeners to the game board
+    game.addClickAreas();
 })();
 
-//IIFE for pubsub functionality between game and ai modules without exposing variables
-let events = (function() {
-    let events = {};
-
-    function on(eventName, fn) {
-        events[eventName] = events[eventName] || [];
-        events[eventName].push(fn);
-    }
-
-    function off(eventName, fn) {
-        if (events[eventName]) {
-            for (let i = 0; i < events[eventName].length; i++) {
-                if( events[eventName][i] === fn ) {
-                    events[eventName].splice(i, 1);
-                    break;
-                }
-            }
-        }
-    }
-
-    function emit(eventName, data) {
-        if (events[eventName]) {
-            events[eventName].forEach(function(fn) {
-                fn(data);
-            });
-        }
-    }
-
-    return {
-        on: on,
-        off: off,
-        emit: emit
-    };
-
-})();
-
-
-
-//adds event listeners to the game board
-game.addClickAreas();
